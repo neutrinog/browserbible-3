@@ -361,11 +361,10 @@ if (Object.keys(argv).length == 1) {
 				'-v VERSION,VERSION = only some versions\n' +
 				'-e VERSION,VERSION = exclude some versions\n' +
 				'-a = process all versions\n' +
+				'-u = process all versions that belong to unfoldingWord\n' +
 				'-i = create index\n');
 	return;
 }
-
-
 
 if (argv['i']) {
 	createIndex = true;
@@ -406,6 +405,17 @@ if (argv['a']) {
 	folders.forEach(function(folder) {
 		convertFolder(baseInput + '/' + folder);
 	});
+} else if (typeof argv['u'] != 'undefined') {
+	var directories = getDirectories(baseInput);
+	var filtered = directories.filter(function(el) {
+		return el.substring(0, 3) == 'uw_';
+	});
+	for (var f in filtered) {
+		var folder = filtered[f];
+		var inputPath = path.join(baseInput, folder);
+		
+		convertFolder(inputPath);
+	}
 }
 
 process.exit();

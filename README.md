@@ -12,10 +12,9 @@ A bible software that runs the [unfoldingWord](http://unfoldingword.org) Bibles 
 
 ### Building The unfoldingWord Bibles ###
 
-1. Delete all the files (except the README.md) in the `app/content/texts` directory.
-2. Navigate to the `/tools/textgenerator` folder.
-3. Run `node generate.js -a` (`-a` will build every version `input` folder, run without `-a` to see help)
-4. Run `node create_texts_index.js` (this creates a list of all versions to startup the app)
+1. Navigate to the `/tools/textgenerator` folder.
+2. Run `node generate.js -u` (`-u` will build every version that belongs to unfoldingWord in the `input` folder, run without `-u` to see help)
+3. Run `node create_texts_index.js` (this creates a list of all versions to startup the app)
 
 ### Adding Bibles/Texts ###
 
