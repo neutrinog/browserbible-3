@@ -48,9 +48,9 @@ var TextWindow = function(id, parent, init_data, text_type) {
 		textlistui = header.find('.text-list'),
 
 		// objects
-		textChooser = new TextChooser(container, textlistui, text_type),
+		textChooser = sofia.globalTextChooser,
 		checkingLevelIndicator = new CheckingLevelIndicator(container),
-		textNavigator = new TextNavigator(container, navui),
+		textNavigator = sofia.globalTextNavigator,
 		scroller = new Scroller(main),
 
 		audioui = container.find('.audio-button'),
@@ -113,17 +113,6 @@ var TextWindow = function(id, parent, init_data, text_type) {
 				});
 			}
 		}
-
-		return;
-
-		if (info.is(':visible')) {
-			info.hide();
-			main.show();
-		} else {
-			info.show();
-			main.hide();
-		}
-
 	});
 
     // submit the publish request to the server
@@ -135,82 +124,24 @@ var TextWindow = function(id, parent, init_data, text_type) {
     });
 
 
-	// DOM to object stuff
-	function textChooserOffClick(e) {
+	textlistui
+		.on('click', function(e) {
 
-		//console.log('doc click');
+			//console.log('clicked');
 
-		var target = $(e.target),
-			clickedOnChooser = false;
-
-		while (target != null && target.length > 0) {
-
-			if (target[0] == textChooser.node()[0] || target[0] == textlistui[0] ) {
-				clickedOnChooser = true;
-				break;
+			if (flipper.hasClass('showinfo')) {
+				flipper.removeClass('showinfo')
 			}
 
-			target = target.parent();
-		}
-
-		//return;
-		if (!clickedOnChooser) {
-			e.preventDefault();
-
-			textChooser.hide();
-			$(document).off('click', textChooserOffClick);
-
-			return false;
-		}
-	}
-
-	textlistui.on('click', function(e) {
-
-		console.log('clicked');
-
-		if (flipper.hasClass('showinfo')) {
-			flipper.removeClass('showinfo')
-		}
-
-		textChooser.toggle();
-
-
-		if (textChooser.node().is(':visible')) {
-			//setTimeout( function() {
-				$(document).on('click', textChooserOffClick);
-			//}, 10);
-		}
-	});
-
-
-	// DOM to object stuff
-	function textNavigatorOffClick(e) {
-
-		//console.log('doc click');
-
-		var target = $(e.target),
-			clickedOnChooser = false;
-
-		while (target != null && target.length > 0) {
-
-			if (target[0] == textNavigator.node()[0] || target[0] == navui[0] ) {
-				clickedOnChooser = true;
-				break;
+			// if this is selected, then toggle
+			if (textChooser.getTarget() == textlistui) {
+				textChooser.toggle();
+			} else {
+				textChooser.setTarget(container, textlistui, text_type);
+				textChooser.setTextInfo(currentTextInfo);
+				textChooser.show();
 			}
-
-			target = target.parent();
-		}
-
-		//return;
-		if (!clickedOnChooser) {
-			e.preventDefault();
-
-			textNavigator.hide();
-			$(document).off('click', textNavigatorOffClick);
-
-			return false;
-		}
-	}
+		});
 
 	navui
 		.on('click', function(e) {
@@ -223,26 +154,13 @@ var TextWindow = function(id, parent, init_data, text_type) {
 				flipper.removeClass('showinfo')
 			}
 
-
-			textNavigator.toggle();
-
-
-			if (!Detection.hasTouch) {
-				setTimeout(function() {
-					//navui[0].focus();
-					//navui[0].select();
-				}, 10);
+			if (textNavigator.getTarget() == navui) {
+				textNavigator.toggle();
+			} else {
+				textNavigator.setTarget(container, navui);
+				textNavigator.setTextInfo(currentTextInfo);
+				textNavigator.show();
 			}
-
-
-			if (textNavigator.node().is(':visible')) {
-
-				//setTimeout( function() {
-					$(document).on('click', textNavigatorOffClick);
-				//}, 10);
-			}
-
-
 		})
 		.on('keypress', function(e) {
 			if (e.keyCode == 13) {
@@ -267,32 +185,39 @@ var TextWindow = function(id, parent, init_data, text_type) {
 					navui[0].blur();
 				}
 			}
-		})
-		;
+		});
 
 	textNavigator.on('change', function (e) {
 		//console.log('scrollerapp:navigator:change', e);
 
-		//ext.trigger('globalmessage', {type: 'usernav', target: ext, data: {usernavtype: 'menu', sectionid: e.data, textid: currentTextInfo.id}});
+		if (e.data.target != navui) {
+			return;
+		}
 
 		if (sofia.analytics) {
 			sofia.analytics.record('usernav', 'menu', e.data + ':' + currentTextInfo.id);
 		}
 
-		TextNavigation.locationChange(e.data);
+		TextNavigation.locationChange(e.data.sectionid);
 
 		// load new content
-		scroller.load('text', e.data);
+		scroller.load('text', e.data.sectionid);
 	});
 
 	textChooser.on('change', function (e) {
 
-		var newTextInfo = e.data;
+		if (e.data.target != textlistui) {
+			return;
+		}
+
+		var newTextInfo = e.data.textInfo;
 
 		// ALWAYS UPDATE: for first load
 		// update version name
-		textlistui.html( newTextInfo.abbr );
-		
+		//textlistui.html( newTextInfo.abbr );
+
+		setTextInfoUI(newTextInfo);
+
 		parent.tab.find('span').html( newTextInfo.abbr );
 
 		// update the navigator with the latest header
@@ -357,12 +282,12 @@ var TextWindow = function(id, parent, init_data, text_type) {
 		navui.html('Reference').val('Reference');
 		textlistui.html('Version');
 
-		// console.log('textsindow init',init_data, isInitialized);
+		console.log('textsindow init', init_data, isInitialized, text_type);
 
 		if (init_data == null) {
 			return;
 		}
-		
+
 		if (typeof init_data.textid == 'undefined' || init_data.textid == '') {
 			init_data.textid = sofia.config.newBibleWindowVersion;
 		}
@@ -390,6 +315,8 @@ var TextWindow = function(id, parent, init_data, text_type) {
 				TextLoader.loadTexts(function(textInfoData) {
 
 					// find a text with the same language
+					// REMOVED b/c the ids no longer use the lang_version syntax
+					/*
 					var newTextInfo = null,
 						lang = init_data.textid.toString().split('-')[0].split('_')[0];
 
@@ -400,6 +327,12 @@ var TextWindow = function(id, parent, init_data, text_type) {
 							newTextInfo = textInfo;
 							break;
 						}
+					}
+					*/
+					var textsWithType = textInfoData.filter(function(ti) { return ti.type == text_type; });
+
+					if (textsWithType.lenght > 0) {
+						newTextInfo = textsWithType[0];
 					}
 
 					// still nothing
@@ -423,12 +356,29 @@ var TextWindow = function(id, parent, init_data, text_type) {
 		});
 	}
 
+	function setTextInfoUI(textinfo) {
+
+
+		switch (textinfo.type ) {
+			default:
+				textlistui.removeClass('app-list-image');
+				textlistui.html( textinfo.abbr );
+				break;
+			case 'deafbible':
+				textlistui.addClass('app-list-image');
+				textlistui.html( '<img src="content/texts/' + textinfo.id + '/' + textinfo.id + '.png" />' );
+				break;
+
+		}
+
+	}
+
 	function startup() {
 
 		// send to objects
 		textChooser.setTextInfo(currentTextInfo);
 		checkingLevelIndicator.setIndicator(currentTextInfo);
-		textlistui.html(currentTextInfo.abbr);
+		setTextInfoUI(currentTextInfo);
 		parent.tab.find('span').html( currentTextInfo.abbr );
 		textNavigator.setTextInfo(currentTextInfo);
 		audioController.setTextInfo(currentTextInfo);
@@ -469,51 +419,6 @@ var TextWindow = function(id, parent, init_data, text_type) {
 		textNavigator.size(width, height);
 	}
 
-
-	$(window).on('resize', moveIcons);
-
-	var iconsAreNormal = true;
-	function moveIcons() {
-		
-		// 2014-01-14 - maybe no longer do this
-		return;
-		
-		var winWidth = $(window).width();
-
-		if (winWidth < 460 && iconsAreNormal) {
-
-			var tcNode = textChooser.node(),
-				tcHeader = tcNode.find('.text-chooser-header');
-
-			tcNode.find('.text-chooser-filter-text').hide();
-
-			audioui.appendTo(tcHeader);
-			infoBtn.appendTo(tcHeader);
-      publishBtn.appendTo(tcHeader);
-
-			iconsAreNormal = false;
-		}
-
-		if (winWidth >= 460 && !iconsAreNormal) {
-
-			var
-				headerInner = container.find('.scroller-header-inner'),
-				tcNode = textChooser.node(),
-				tcHeader = tcNode.find('.text-chooser-header');
-
-			tcNode.find('.text-chooser-filter-text').show();
-
-			audioui.appendTo(headerInner);
-			infoBtn.appendTo(headerInner);
-      publishBtn.appendTo(tcHeader);
-
-			iconsAreNormal = true;
-		}
-
-
-	};
-	moveIcons();
-
 	function getData() {
 		// get data
 		if (currentTextInfo == null) {
@@ -552,7 +457,6 @@ var TextWindow = function(id, parent, init_data, text_type) {
 
 
 	function close() {
-		$(window).off('resize', moveIcons);
 
 		textChooser.close();
 		textNavigator.close();
@@ -577,7 +481,7 @@ var TextWindow = function(id, parent, init_data, text_type) {
 	ext.on('message', function(e) {
 		var data = e.data;
 
-		if (data.messagetype == 'nav' && (data.type == 'bible' || data.type == 'commentary') && data.locationInfo != null) {
+		if (data.messagetype == 'nav' && (data.type == 'bible' || data.type == 'commentary'|| data.type == 'videobible' || data.type == 'deafbible') && data.locationInfo != null) {
 			//console.log(id, data.locationInfo.fragmentid, data.locationInfo.offset)
 			scroller.scrollTo( data.locationInfo.fragmentid, data.locationInfo.offset);
 		}
@@ -607,9 +511,6 @@ sofia.initMethods.push(function() {
 
 });
 
-
-//if (typeof sofia.config.newCommentaryWindowTextId != 'undefined') {
-
 var CommentaryWindow = function(id, node, init_data) {
 	return new TextWindow(id, node, init_data, 'commentary');
 };
@@ -632,4 +533,3 @@ sofia.initMethods.push(function() {
 		});
 	}
 });
-//}

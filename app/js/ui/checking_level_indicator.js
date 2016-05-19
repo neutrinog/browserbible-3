@@ -32,7 +32,7 @@ var CheckingLevelIndicator = function(container) {
    */
   function appendIcon(checkinglevelClass) {
     if (checkingLevelButton !== null) {
-      removeIcon();
+      removeCheckingLevelIcon();
     }
     var link = $('<a/>').attr({ 'href': 'https://unfoldingword.org/quality/', 'target': '_blank' });
     var checkingIcon = link.append($('<span/>').addClass('header-icon checking-level-button').addClass(checkinglevelClass));
@@ -47,7 +47,7 @@ var CheckingLevelIndicator = function(container) {
    *
    * @author Johnathan Pulos <johnathan@missionaldigerati.org>
    */
-  function removeIcon() {
+  function removeCheckingLevelIcon() {
     checkingLevelButton.remove();
     checkingLevelButton = null;
   }
@@ -64,7 +64,7 @@ var CheckingLevelIndicator = function(container) {
     if (currentTextInfo.hasOwnProperty('checking_level')) {
       appendIcon('level-'+currentTextInfo.checking_level);
     } else {
-      removeIcon();
+      removeCheckingLevelIcon();
     }
   };
 

@@ -5,7 +5,7 @@ tools/textgenerator/node_modules/*
 !tools/textgenerator/node_modules/unfolding-word
 tools/utilities/
 tools/_old/
-content/texts/
+content/texts/*.*
 build/
 app/content/texts/*
 !app/content/texts/README.md

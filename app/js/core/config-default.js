@@ -55,7 +55,10 @@ sofia.config = {
 
 	// language for top
 	pinnedLanguage: 'English',
-	
+
+	// language(s) for top
+	pinnedLanguages: ['English', 'Spanish'],
+
 	// Override the browser and user's choice for UI language
 	defaultLanguage: '',
 
@@ -79,7 +82,5 @@ sofia.config = {
 sofia.customConfigs = {
 	"dbs": {
 		customCssUrl: 'dbs.css'
-
 	}
-
 };

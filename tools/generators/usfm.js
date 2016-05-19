@@ -1,13 +1,13 @@
 var fs = require('fs'),
 	path = require('path'),
-	bibleData = require('bible_data'),
-	bibleFormatter = require('bible_formatter'),
-	usfmParser = require('usfm_parser'),
-	readline = require('readline');
-stream = require('stream'),
-jsdom = require("jsdom"),
-$ = require('jquery')(jsdom.jsdom().defaultView),
-verseIndexer = require('verse_indexer');
+	bibleData = require('../data/bible_data.js'),
+	bibleFormatter = require('../bible_formatter.js'),
+	verseIndexer = require('../verse_indexer.js'),
+	usfmParser = require('./usfm_parser.js'),
+	readline = require('readline'),
+	stream = require('stream'),
+	jsdom = require("jsdom"),
+	$ = require('jquery')(jsdom.jsdom().defaultView);
 
 function generate(inputBasePath, info, createIndex, startProgress, updateProgress) {
 	var breakChar = '\n';
@@ -84,14 +84,7 @@ function generate(inputBasePath, info, createIndex, startProgress, updateProgres
 						nextUsfm = usfmParser.parseLine(nextLine);
 
 					if (skipAheadKeys.indexOf(nextUsfm.key) > -1) {
-						/**
-						 * If the nextline is filled with spaces or is empty, we do not want to add it to the line
-						 *
-						 * @author Johnathan Pulos <johnathan@missionaldigerati.org>
-						 */
-						if (nextLine.replace(/\s/g, '').length) {
-							usfm.text += ' ' + nextLine;
-						}
+						usfm.text += ' ' + nextLine;
 					} else if (nextUsfm == null) {
 						usfm.text += ' ' + nextLine;
 					} else {
@@ -237,6 +230,8 @@ function generate(inputBasePath, info, createIndex, startProgress, updateProgres
 				case 'c':
 					// new chapter
 					if (usfm.text > 1) {
+
+
 						if (verseIsOpen) {
 							currentChapterHtml += '</span>' + breakChar;
 							verseIsOpen = false;

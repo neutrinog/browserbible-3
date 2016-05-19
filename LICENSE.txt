@@ -1,8 +1,3 @@
-Modifications and additions to the original code at
-https://github.com/digitalbiblesociety/browserbible-3 are 
-Copyright (c) 2015 unfoldingWord <admin@unfoldingword.org>
-under the same terms of the MIT license below.
-
 The MIT License (MIT)
 
 Copyright (c) 2015 Digital Bible Society

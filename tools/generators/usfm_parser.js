@@ -4,29 +4,43 @@ var textRegExp = /(\\([a-z0-9]+))\s([^\\]*)(\\([a-z0-9]+)\*+)?/g;
 var unparsed = [];
 
 function formatText(text, noteNumber, chapterVerse) {
+
 	textRegExp.lastIndex = 0;
 
 	var notes = '';
-	var footnoteOpen = false;
 
-	text = text.replace(textRegExp, function(match, usfmTag, key, content) {
+
+	text = text.replace(textRegExp, function() {
+
+		//console.log('handling', arguments);
+
+		var key = arguments[2],
+			content = arguments[3];
 
 		switch (key) {
 			case 'f':
-				footnoteOpen = true;
-				content = content.trim();
-				var firstSpace = content.indexOf(' ');
-				var noteKey = content.substring(0, firstSpace);
-				var noteText = content.substring(firstSpace + 1);
-
-				return '<span class="note" id="note-' + noteNumber + '"><a class="key" href="#footnote-' + noteNumber + '">' + noteNumber + '</a><span class="text">' + noteText;
-			break;
 			case 'ft':
-				return ' ' + content;
-			break;
 			case 'fqa':
-				return ' <em>' + content.trim() + '</em>';
-			break;
+				content = content.trim();
+				var firstSpace = content.indexOf(' '),
+					noteKey = content.substring(0, firstSpace),
+					noteText = content.substring(firstSpace + 1);
+
+				//return '<span class="note"><span class="key">' + noteKey + '</span><span class="text">' + noteText + '</span></span>';
+				//return '<span class="note" id="note-' + noteKey + '"><a class="key" href="footnote-' + noteKey + '">' + noteKey + '</a><span class="text">' + noteText + '</span></span>';
+
+				notes += '<span class="footnote" id="footnote-' + noteNumber + '">' +
+					'<span class="key">' + noteKey + '</span>' +
+					'<a class="backref" href="#note-' + noteNumber + '">' + chapterVerse + '</a>' +
+					'<span class="text">' + noteText + '</span>' +
+					'</span>'
+				noteNumber++;
+
+				return '<span class="note" id="note-' + noteNumber + '">' +
+					'<a class="key" href="#footnote-' + noteNumber + '">' + noteKey + '</a>' +
+					'</span>';
+
+				break;
 			case 'x':
 				content = content.trim();
 				var firstSpace = content.indexOf(' '),
@@ -65,7 +79,7 @@ function formatText(text, noteNumber, chapterVerse) {
 			default:
 
 				if (unparsed.indexOf(key) == -1) {
-					console.log('unparsed', key);
+					// console.log('unparsed', key);
 					unparsed.push(key);
 				}
 
@@ -74,10 +88,6 @@ function formatText(text, noteNumber, chapterVerse) {
 
 
 	});
-	
-	if (footnoteOpen) {
-		text += '</span></span>';
-	}
 
 	return {
 		text: text,
