@@ -5,6 +5,6 @@
  "lang": "heb",
  "langNameEnglish": "Hebrew",
  "name": "Westminster Leningrad Codex",
- "generator": "generate_morphhb",
+ "generator": "morphhb",
  "filename": "",
  "dir": "rtl"}
