@@ -20,7 +20,10 @@ sofia.resources['en'] = {
 				"thankyou": "Thank you for your feedback"
 			},
 			"search": {
-				"placeholder": "Search"
+				"placeholder": "Search",
+				"suggestversion": "Open <strong>{0}</strong> in new window",
+				"suggestreference": "Go to <strong>{0}</strong> in {1}",
+				"suggestsearch": "Search \"<strong>{0}</strong>\" in {1}"
 			},
 			"config": {
 				"font": "Style",
@@ -54,6 +57,12 @@ sofia.resources['en'] = {
 			}
 		},
 		"windows": {
+			"deafbible": {
+				"label": "Deaf Bible"
+			},
+			"videobible": {
+				"label": "Video Bible"
+			},
 			"bible": {
 				"label": "Bible",
 				"recentlyused": "Recently Used",
@@ -63,9 +72,11 @@ sofia.resources['en'] = {
 				"dc": "Deuterocanonical Books",
 				"more": "More",
 				"less": "Less",
-				"default": "Default",
-				"languages": "Languages",
-				"countries": "Countries"
+				"default": "Featured",
+				"languages": "Language",
+				"countries": "Country",
+				"lemma":"Greek/Hebrew Popups",
+				"audio":"Audio available"
 			},
 			"commentary": {
 				"label": "Commentary"
@@ -104,6 +115,10 @@ sofia.resources['en'] = {
 			},
 			"comparison": {
 				"label": "Comparison"
+			},
+			"stats": {
+				"label": "Statistics",
+				"frequentwords":"Frequent Words"
 			}
 		},
 		"names": {

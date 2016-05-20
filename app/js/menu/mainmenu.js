@@ -19,18 +19,18 @@ var MainMenuButton = function(node) {
 	var
 		body = $(document.body),
 		win = $(window),
-			
+
 		container = $('.windows-container'),
 		mainMenuLogo = $('<div id="app-logo"></div>')
 					.appendTo(node),
 		mainMenuButton = $('<div id="main-menu-button"></div>')
 					.appendTo(node)
 					.on('click', mainMenuClick),
-		mainMenuDropDown = $('<div id="main-menu-dropdown">' + 
+		mainMenuDropDown = $('<div id="main-menu-dropdown">' +
 								'<div class="main-menu-heading i18n" data-i18n="[html]menu.labels.addwindow">Add Window</div>' +
 								'<div id="main-menu-windows-list" class="main-menu-list"></div>' +
 								'<div class="main-menu-heading i18n" data-i18n="[html]menu.labels.options"></div>' +
-								'<div id="main-menu-features" class="main-menu-list"></div>' +								
+								'<div id="main-menu-features" class="main-menu-list"></div>' +
 							'</div>')
 							.appendTo( body )
 							.hide();
@@ -38,39 +38,41 @@ var MainMenuButton = function(node) {
 
 	function mainMenuClick(e) {
 
-		e.preventDefault();
-
 		if (mainMenuDropDown.is(':visible')) {
-			
-			mainMenuButton.removeClass('active');
-			mainMenuDropDown.hide();
-
-			$(document).off('click', docClick);			
-			
+			hide();
 		} else {
-			$('.window-overlay').hide();
-
-			mainMenuButton.addClass('active');			
-			mainMenuDropDown.show();
-			
-			setTimeout(function() {
-				$(document).on('click', docClick);
-			},50);
-		}
-
-		return false;
-	}
-
-	function docClick(e) {
-
-		if ($(e.target).closest('#add-button-box').length == 0) { // } && $(e.target).closest('#main-add-button').length == 0) {
-
-			mainMenuDropDown.hide();
-			mainMenuButton.removeClass('active');			
-
-			$(document).off('click', docClick);
+			show();
 		}
 	}
+
+	function show() {
+		mainMenuButton.addClass('active');
+		mainMenuDropDown.show();
+		ext.onshow();
+	}
+
+	function hide() {
+		mainMenuButton.removeClass('active');
+		mainMenuDropDown.hide();
+		ext.onhide();
+	}
+
+	mainMenuDropDown.on('click', '.main-menu-item', function() {
+		hide();
+	});
+
+
+	var ext = {};
+	ext = $.extend(true, ext, EventEmitter);
+	ext = $.extend(true, ext, ClickOff);
+	ext.clickoffid = 'version picker';
+	ext.on('offclick', function() {
+		hide();
+	});
+	ext.setClickTargets([mainMenuButton, mainMenuDropDown]);
+
+	return ext;
+
 }
 
 
