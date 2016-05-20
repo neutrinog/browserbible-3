@@ -89,6 +89,7 @@ var testSources = ['./tests/**/*.js'];
  */
 function handleMochaError(err) {
   console.log(err.toString());
+  process.exit(1);
   this.emit('end');
 }
 function handleLintError(err) {
