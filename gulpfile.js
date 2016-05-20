@@ -35,6 +35,36 @@ var plumber = require('gulp-plumber');
  */
 var notify = require('gulp-notify');
 /**
+ * Path library
+ *
+ * @type {Object}
+ */
+var path = require('path');
+/**
+ * Run a Child Process
+ *
+ * @type {Object}
+ */
+var exec = require('child_process').exec;
+/**
+ * The location of the uw grab bibles scripts
+ *
+ * @type {String}
+ */
+var grabBiblesScript = path.join('./tools', 'unfolding-word', 'uw-grab-bibles.js');
+/**
+ * The location of the bible generation script
+ *
+ * @type {String}
+ */
+var generateScript = path.join('./tools', 'generate.js');
+/**
+ * The location of the creating index script
+ *
+ * @type {String}
+ */
+var createIndexScript = path.join('./tools', 'create_texts_index.js');
+/**
  * An array of files to watch and run lint on
  *
  * @type {Array}
@@ -65,6 +95,54 @@ function handleLintError(err) {
   console.log(err.toString());
   this.emit('end');
 }
+/**
+ * Build the site
+ *
+ * @author Johnathan Pulos <johnathan@missionaldigerati.org>
+ */
+gulp.task('uw:build', function() {
+  console.log('Grabbing the latest Bibles from unfoldingWord.');
+
+  executeScript('node ' + grabBiblesScript, function() {
+    console.log('All the Bibles have been downloaded.');
+    console.log('Building all the available Bibles.');
+
+    executeScript('node ' + generateScript + ' -a', function() {
+      console.log('Adding an index for all the Bibles.');
+
+      executeScript('node ' + createIndexScript, function() {
+        console.log('The index was created.');
+        console.log('The build was completed');
+      });
+    });
+  });
+});
+/**
+ * Grab the current UW Bibles
+ *
+ * @author Johnathan Pulos <johnathan@missionaldigerati.org>
+ */
+gulp.task('uw:grab-bibles', function() {
+  console.log('Grabbing the latest Bibles from unfoldingWord.');
+  executeScript('node ' + grabBiblesScript, function() {
+    console.log('All the Bibles have been downloaded.');
+  });
+});
+/**
+ * Build the Bibles
+ *
+ * @author Johnathan Pulos <johnathan@missionaldigerati.org>
+ */
+gulp.task('uw:build-bibles', function() {
+  console.log('Building all the available Bibles.');
+  executeScript('node ' + generateScript + ' -a', function() {
+    console.log('Adding an index for all the Bibles.');
+
+    executeScript('node ' + createIndexScript, function() {
+      console.log('The index was created');
+    });
+  });
+});
 /**
  * Add a linting task
  *
@@ -99,3 +177,24 @@ gulp.task('watch', ['lint', 'test'], function() {
     gulp.run('lint', 'test');
   });
 });
+/**
+ * Run and execute a script
+ *
+ * @param  {String} the script to run
+ * @return {Void}
+ * @access private
+ */
+function executeScript(script, callback) {
+  var child = exec(script);
+  child.stdout.on('data', function(data) {
+      console.log(data);
+  });
+  child.stderr.on('data', function(data) {
+      console.log(data);
+  });
+  child.on('close', function(code) {
+      if (callback) {
+        callback();
+      }
+  });
+}

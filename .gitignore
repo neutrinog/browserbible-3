@@ -1,4 +1,5 @@
 node_modules/
+input/uw_*/
 tools/utilities/
 tools/_old/
 content/texts/*.*

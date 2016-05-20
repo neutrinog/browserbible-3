@@ -17,6 +17,13 @@ var fs = require('fs'),
 	verseIndexer = require('./verse_indexer.js'),
 	ProgressBar = require('progress'),
 	argv = require('minimist')(process.argv.slice(2));
+/**
+ * Nodejs package del for finding and deleting directories
+ *
+ * @type {Object}
+ * @access private
+ */
+var del = require('del');
 
 
 // VARS
@@ -30,14 +37,18 @@ var
 if (argv['h']) {
 	console.log('----------------\n' +
 				'Generator Help\n' +
+				'-a Clean output directory and convert all versions\n' +
 				'-v VERSION,VERSION = only some versions\n' +
 				'-e VERSION,VERSION = exclude some versions\n' +
+				'-u = process all versions that belong to unfoldingWord\n' +
 				'-i = create index\n');
 	return;
 }
-
-// Generate listed texts
-if (argv['v'] !== undefined) {
+// Generate Everything
+if (argv['a']) {
+	cleanBaseOutputPath(baseOutput);
+	convertTexts(baseInput);
+} else if (argv['v'] !== undefined) {
 	convertTexts(baseInput, argv['v'].split(','));
 
 // Generate all but listed texts
@@ -50,7 +61,18 @@ if (argv['v'] !== undefined) {
 		baseInput,
 		folders.filter(function(name) { return foldersToExclude.indexOf(name) === -1; })
 	);
+// Generate all unfolding word texts
+} else if (typeof argv['u'] != 'undefined') {
+	var directories = getDirectories(baseInput);
+	var filtered = directories.filter(function(el) {
+		return el.substring(0, 3) == 'uw_';
+	});
+	for (var f in filtered) {
+		var folder = filtered[f];
+		var inputPath = path.join(baseInput, folder);
 
+		convertFolder(inputPath);
+	}
 // Generate all texts
 } else {
 	convertTexts(baseInput);
@@ -242,4 +264,51 @@ function MillisecondsToDuration(n) {
 	hms += s.substr(s.length-2) + "." + cs.substr(cs.length-2);
 
 	return hms;
+}
+
+/**
+ * Get all the directories in the given path
+ *
+ * @param  {string} srcpath The path to search
+ *
+ * @return {array}         An array of directories in that path
+ *
+ * @author Johnathan Pulos <johnathan@missionaldigerati.org>
+ */
+function getDirectories(srcpath) {
+  return fs.readdirSync(srcpath).filter(function(file) {
+    return fs.statSync(path.join(srcpath, file)).isDirectory();
+  });
+}
+/**
+ * Remove all the current directories in the baseOutput path
+ *
+ * @param {String} baseOutput The base output path
+ * @return {void}
+ *
+ * @author Johnathan Pulos <johnathan@missionaldigerati.org>
+ */
+function cleanBaseOutputPath(baseOutput) {
+	console.log("Removing the existing directories.")
+	var baseAbsolutePath = path.resolve(baseOutput);
+	var directories = getDirectories(baseAbsolutePath);
+	var deleteDirectories = [];
+	for (var i = 0; i < directories.length; i++) {
+		deleteDirectories.push(path.join(baseAbsolutePath, directories[i]));
+	};
+	del.sync(deleteDirectories, {force: true });
+};
+/**
+ * Get all the directories in the given path
+ *
+ * @param  {string} srcpath The path to search
+ *
+ * @return {array}         An array of directories in that path
+ *
+ * @author Johnathan Pulos <johnathan@missionaldigerati.org>
+ */
+function getDirectories(srcpath) {
+  return fs.readdirSync(srcpath).filter(function(file) {
+    return fs.statSync(path.join(srcpath, file)).isDirectory();
+  });
 }

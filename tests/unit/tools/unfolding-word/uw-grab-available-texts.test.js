@@ -74,7 +74,7 @@ describe('uwGrabAvailableTexts', function() {
             langName:         'English',
             langNameEnglish:  'English',
             dir:              'ltr',
-            generator:        'unfolding-word/uw-generate-usfm',
+            generator:        '../unfolding-word/uw-generate-usfm',
             checking_level:   '3'
           },
           files: [
@@ -92,7 +92,7 @@ describe('uwGrabAvailableTexts', function() {
             langName:         'English',
             langNameEnglish:  'English',
             dir:              'ltr',
-            generator:        'unfolding-word/uw-generate-usfm',
+            generator:        '../unfolding-word/uw-generate-usfm',
             checking_level:   '3'
           },
           files: [
@@ -130,8 +130,8 @@ describe('uwGrabAvailableTexts', function() {
     });
 
     it("should create the info.json files", function() {
-      var firstInfoJson = JSON.stringify({id:'uw_en_udb',abbr:'UDB',name:'Unlocked Dynamic Bible',nameEnglish:'',lang:'en',langName:'English',langNameEnglish:'English',dir:'ltr',generator:'unfolding-word/uw-generate-usfm',checking_level:'3'});
-      var secondInfoJson = JSON.stringify({id:'uw_en_ulb',abbr:'ULB',name:'Unlocked Literal Bible',nameEnglish:'',lang:'en',langName:'English',langNameEnglish:'English',dir:'ltr',generator:'unfolding-word/uw-generate-usfm',checking_level:'3'});
+      var firstInfoJson = JSON.stringify({id:'uw_en_udb',abbr:'UDB',name:'Unlocked Dynamic Bible',nameEnglish:'',lang:'en',langName:'English',langNameEnglish:'English',dir:'ltr',generator:'../unfolding-word/uw-generate-usfm',checking_level:'3'});
+      var secondInfoJson = JSON.stringify({id:'uw_en_ulb',abbr:'ULB',name:'Unlocked Literal Bible',nameEnglish:'',lang:'en',langName:'English',langNameEnglish:'English',dir:'ltr',generator:'../unfolding-word/uw-generate-usfm',checking_level:'3'});
       fileSystemStub.writeFile.called.should.be.equal(true);
       fileSystemStub.writeFile.firstCall.calledWith(path.join(inputPath, 'uw_en_udb', 'info.json'), firstInfoJson).should.be.equal(true);
       fileSystemStub.writeFile.thirdCall.calledWith(path.join(inputPath, 'uw_en_ulb', 'info.json'), secondInfoJson).should.be.equal(true);

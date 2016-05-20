@@ -9,7 +9,7 @@ var path = require('path');
  *
  */
 uw.catalogUrl = 'https://api.unfoldingword.org/uw/txt/2/catalog.json';
-uw.destinationFolder = path.join(__dirname, 'input');
+uw.destinationFolder = path.join(process.cwd(), 'input');
 /**
  * Process the current Bibles
  */

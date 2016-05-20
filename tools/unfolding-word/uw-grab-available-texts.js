@@ -382,7 +382,7 @@ var uwGrabAvailableTexts = function() {
           langName:         languageData.ln,
           langNameEnglish:  languageData.ang,
           dir:              languageData.ld,
-          generator:        'unfolding-word/uw-generate-usfm',
+          generator:        '../unfolding-word/uw-generate-usfm',
           checking_level:   checkingLevel
         };
         bible.files = getFiles(version.toc);
