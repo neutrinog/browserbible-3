@@ -96,6 +96,19 @@ function handleLintError(err) {
   this.emit('end');
 }
 /**
+ * Offer some helpful hints
+ */
+gulp.task('help', function() {
+  console.log('-----------------------');
+  console.log('lint             - Runs jshint on the tests, and all code in the tools/unfolding-word directories.');
+  console.log('test             - Runs the mocha tests files in the test directory.');
+  console.log('uw:build         - Builds the website by grabbing the latest Bibles, converting them to HTML, and setting them up in the correct directory. (Combines uw:grab-bibles & uw:build-bibles)');
+  console.log('uw:grab-bibles   - Grabs the latest Bible from unfoldingWord, and stores them in the input directory.');
+  console.log('uw:build-bibles  - Builds all the Bibles in the input directory, and sets them up in the correct directory.');
+  console.log('watch            - Watches for code changes in the tests & tools/unfolding-word directories.  Then triggers the lint and test tasks.');
+  console.log('-----------------------');
+});
+/**
  * Build the site
  *
  * @author Johnathan Pulos <johnathan@missionaldigerati.org>
