@@ -3,32 +3,13 @@
 
 A bible software that runs the [unfoldingWord](http://unfoldingword.org) Bibles in the browser. See changelog.md for recent updates.  This code is an update of the [Browser Bible App](https://github.com/digitalbiblesociety/browserbible).
 
-### Grabbing the unfoldingWord Bibles ##
+### Gulp ##
 
-1. Make sure you have [Node.js](http://nodejs.org/download/) installed.
-2. Run `npm install` to install dependencies.
-3. Run `gulp uw:grab-bibles` from the root directory (This will pull down all the latest versions of UW Bibles)
+We have made it easy to retrieve the latest Bibles, and update the site with these Bibles.  You will need to install [Node.js](http://nodejs.org/download/), and run `npm install .` in the root directory.  Once NodeJS is installed, you can use the following tasks to build the site:
 
-### Building The unfoldingWord Bibles ###
-
-1. Navigate to the `/tools/textgenerator` folder.
-2. Run `node generate.js -u` (`-u` will build every version that belongs to unfoldingWord in the `input` folder, run without `-u` to see help)
-3. Run `node create_texts_index.js` (this creates a list of all versions to startup the app)
-
-### Adding Bibles/Texts ###
-
-To create additional texts
-
-1. Create a folder under `/tools/textgenerator/input/MyNewVersion/`
-2. Create a `info.json` file in that folder with the id, name, language, information
-3. Put content in the folder (currently USFM files and bibles from http://unbound.biola.edu/)
-4. From `/tools/textgenerator` folder, run `node generate.js -v <foldername>` to generate an additional text
-5. Run `node create_texts_index.js` (this updates the list of versions)
-
-### Build (minify) ###
-
-To create a "build" version, you'll need uglify-js
-
-1. Install uglify-js `npm install uglify-js`
-2. Rename `app/js/windows/config-custom-example.js` to `config-custom.js` and update configs to your needs
-3. Run `node builder.js` (creates build files to use with index-build.html)
+- lint             - Runs jshint on the tests, and all code in the tools/unfolding-word directories.
+- test             - Runs the mocha tests files in the test directory.
+- uw:build         - Builds the website by grabbing the latest Bibles, converting them to HTML, and setting them up in the correct directory. (Combines uw:grab-bibles & uw:build-bibles)
+- uw:grab-bibles   - Grabs the latest Bible from unfoldingWord, and stores them in the input directory.
+- uw:build-bibles  - Builds all the Bibles in the input directory, and sets them up in the correct directory.
+- watch            - Watches for code changes in the tests & tools/unfolding-word directories.  Then triggers the lint and test tasks.
