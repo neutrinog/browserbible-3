@@ -6,16 +6,17 @@ var chai = require('chai');
 var should = chai.should();
 var mockery = require('mockery');
 var sinon = require('sinon');
+var path = require('path');
 
 describe("Parser: USFM", function() {
   var usfm;
 
   before(function() {
-    usfm = require('unfolding-word/lib/parsers/usfm-parser.js');
+    usfm = require(path.join(process.cwd(), 'tools', 'unfolding-word', 'lib', 'parsers', 'usfm-parser'));
   });
 
   describe("parse()", function() {
-    
+
     it("should handle a line with one USFM tag", function() {
       var line = '\\v 46 Then Mary praised God by saying:';
       var expected = {

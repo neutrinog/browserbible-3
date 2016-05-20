@@ -33,28 +33,28 @@ var uwGenerateUsfm = function() {
    * @type {Object}
    * @access private
    */
-  var usfmParser = require('unfolding-word/lib/parsers/usfm-parser.js');
+  var usfmParser = require('./lib/parsers/usfm-parser.js');
   /**
    * A cusom NodeJS file for parsing Bible data
    *
    * @type {Object}
    * @access private
    */
-  var bibleDataParser = require('bible_data');
+  var bibleDataParser = require('../data/bible_data');
   /**
    * A custom NodeJS file for formatting Bible data
    *
    * @type {Object}
    * @access private
    */
-  var bibleFormatter = require('bible_formatter');
+  var bibleFormatter = require('../bible_formatter');
   /**
    * A custom NodeJS file for indexing a verse
    *
    * @type {Object}
    * @access private
    */
-  var verseIndexer = require('verse_indexer');
+  var verseIndexer = require('../verse_indexer');
 
   /**
    * The base path to the folder containing the USFM files
@@ -125,19 +125,19 @@ var uwGenerateUsfm = function() {
    * 2) Iterates over each line in the file
    * 3) Parses the USFM file and generates the appropriate HTML for each chapter in the book
    * 4) Return an JSON Object with various information about the book including the chapter html
-   * 
+   *
    * In the Chapter data object, each chapter contains the folowing data:
-   * 
+   *
    *  { id: 'RV21',
    *    html: 'HTML FOR THE CHAPTER',
    *    notes: '',
    *    previd: 'RV20',
-   *    nextid: 'RV22' 
+   *    nextid: 'RV22'
    *  }
    *
    * @param  {String}   inputBasePath   The path to the folder containing the USFM files
    * @param  {Object}   info            The JSON object of information in the info.json file in the inputBasePath (Passed by Reference so we can add additional info)
-   * @param  {Boolean}  createIndex     Do you want to create an index of the verses? (See verse_indexer.js)    
+   * @param  {Boolean}  createIndex     Do you want to create an index of the verses? (See verse_indexer.js)
    * @param  {callback} startProgress   The callback to start the progress bar
    * @param  {callback} updateProgress  The callback for updating the current progress
    *
@@ -264,7 +264,7 @@ var uwGenerateUsfm = function() {
               if (currentChapter.number > 1) {
                 /**
                  * We have a new chapter, finishe what we started
-                 */ 
+                 */
                 closeChapter(currentChapter);
                 currentChapter.title = '';
                 currentChapter.id = '';
@@ -469,7 +469,7 @@ var uwGenerateUsfm = function() {
       currentChapter.title = '';
       currentChapter.id = '';
       currentChapter.html = '';
-      
+
       bookCodes.push(currentBook.parsedInfo.dbsCode);
       bookNames.push(currentBook.name);
       bookAbbreviations.push(currentBook.abbreviation);
@@ -547,7 +547,7 @@ var uwGenerateUsfm = function() {
    * 1) html    - (String) The HTML content for the chapter
    * 2) id      - (String) A combination of the book and chapter id (ex. JM1)
    * 4) title   - (String) The title of the chapter
-   * 
+   *
    * @param  {Object} chapter   A JSON object with information on the chapter to close
    *
    * @return {void}
@@ -629,10 +629,10 @@ var uwGenerateUsfm = function() {
     return '';
   }
   /**
-   * Add the prevId & nextId navigation based on the final chapter data. Warning!  This is 
-   * assuming the files are read in book order!  Therefore, filenames should start with the 
+   * Add the prevId & nextId navigation based on the final chapter data. Warning!  This is
+   * assuming the files are read in book order!  Therefore, filenames should start with the
    * number order.
-   * 
+   *
    * @return {void}
    * @access private
    *

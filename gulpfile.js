@@ -39,7 +39,11 @@ var notify = require('gulp-notify');
  *
  * @type {Array}
  */
-var sources = ['./gulpfile.js', './uw-grab-bibles.js', './node_modules/unfolding-word/**/*.js', './tests/**/*.js'];
+var sources = [
+  './gulpfile.js',
+  './tools/unfolding-word/**/*.js',
+  './tests/**/*.js'
+];
 /**
  * An array of file locations for the test files to be run
  *
@@ -78,7 +82,7 @@ gulp.task('lint', function() {
 });
 /**
  * Add a task for running the tests
- * 
+ *
  * @author Johnathan Pulos <johnathan@missionaldigerati.org>
  */
 gulp.task('test', function() {

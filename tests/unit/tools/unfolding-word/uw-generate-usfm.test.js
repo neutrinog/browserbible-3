@@ -38,12 +38,12 @@ describe('uwGenerateUsfm', function() {
       warnOnUnregistered: false,
       useCleanCache: true
     });
-    testFilePath = path.join('tests', 'support', 'usfm_test_files');
+    testFilePath = path.join(process.cwd(), 'tests', 'support', 'usfm_test_files');
     indexerStub = {
       indexVerse: sinon.stub()
     };
-    mockery.registerMock('verse_indexer', indexerStub);
-    uw = require('unfolding-word/uw-generate-usfm');
+    mockery.registerMock('../verse_indexer', indexerStub);
+    uw = require(path.join(process.cwd(), 'tools', 'unfolding-word', 'uw-generate-usfm'));
     uw.outputUnparsedTags = false;
   });
 
@@ -59,7 +59,7 @@ describe('uwGenerateUsfm', function() {
     });
 
     describe("Info Argument By Reference", function() {
-      
+
       it("should add all required additional info", function() {
         /**
          * The dbsCodes for the Bible books
@@ -196,7 +196,7 @@ describe('uwGenerateUsfm', function() {
       describe("Return Data: chapterData[i].html", function() {
 
         describe("Wrapping Div Element", function() {
-          
+
           it("should have the correct classes", function() {
             var inputBasePath = path.join(testFilePath, 'three_verses');
             var result = uw.generate(inputBasePath, baseInfoJson, false, function(){}, function() {});
@@ -232,7 +232,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Introductions", function() {
-          
+
           it("should set the correct usfm introductions (p13)", function() {
             var inputBasePath = path.join(testFilePath, 'introductions');
             var result = uw.generate(inputBasePath, baseInfoJson, false, function(){}, function() {});
@@ -256,7 +256,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Titles, Headings & Labels", function() {
-        
+
             it("should set the correct default chapter header", function() {
               var expected = '1';
               var inputBasePath = path.join(testFilePath, 'three_verses');
@@ -314,7 +314,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Verses", function() {
-          
+
           it("should add the verse number and wrap it wuth appropriate classes", function() {
             var inputBasePath = path.join(testFilePath, 'three_verses');
             var result = uw.generate(inputBasePath, baseInfoJson, false, function(){}, function() {});
@@ -326,7 +326,7 @@ describe('uwGenerateUsfm', function() {
           });
 
           it("should wrap the verse in the appropriate classes", function() {
-            var expected = 'I, James, serve God and am bound to God through the Lord Jesus Christ. ' + 
+            var expected = 'I, James, serve God and am bound to God through the Lord Jesus Christ. ' +
               'I am writing this letter to the twelve Jewish tribes who trust in Christ and who are ' +
               'scattered throughout the world. I greet you all.';
             var inputBasePath = path.join(testFilePath, 'three_verses');
@@ -342,7 +342,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Notes", function() {
-          
+
           it("should format footnotes correctly", function() {
             var expected = '<span class="note" id="note-1"><a class="key" href="#footnote-1">1</a>' +
               '<span class="text">Some ancient authorities insert here v. 24 <em>May the grace of ' +
@@ -357,7 +357,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Paragraphs", function() {
-          
+
           it("should be appropriately formatted when text follows the tag", function() {
             var expected = 'God, whose name is Yahweh, made the heavens and the earth.';
             var inputBasePath = path.join(testFilePath, 'paragraphs');
@@ -383,7 +383,7 @@ describe('uwGenerateUsfm', function() {
       });
 
       describe("Text Blocks", function() {
-        
+
         describe("Indented Paragraphs", function() {
 
           it("should be appropriately formatted when text follows the tag", function() {
@@ -408,9 +408,9 @@ describe('uwGenerateUsfm', function() {
           });
 
         });
-        
+
         describe("Chapter Character", function() {
-          
+
           it("should wrap it with the appropriate element", function() {
             var expected = 'T';
             var inputBasePath = path.join(testFilePath, 'text_blocks');
@@ -423,7 +423,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Line Breaks", function() {
-          
+
           it("should add a div for a line break", function() {
             var inputBasePath = path.join(testFilePath, 'text_blocks');
             var result = uw.generate(inputBasePath, baseInfoJson, false, function(){}, function() {});
@@ -434,7 +434,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("Quotes", function() {
-          
+
           it("should wrap it with the appropriate element", function() {
             var expectedQ1 = 'He is my God, and I will praise him.';
             var expectedQ2 = 'He is the one who has saved me.';
@@ -471,7 +471,7 @@ describe('uwGenerateUsfm', function() {
         });
 
         describe("List Items", function() {
-          
+
           it("should wrap list items with the appropriate elements", function() {
             var inputBasePath = path.join(testFilePath, 'list_items');
             var result = uw.generate(inputBasePath, baseInfoJson, false, function(){}, function() {});
@@ -496,7 +496,7 @@ describe('uwGenerateUsfm', function() {
       });
 
       describe("Return Data: indexLemmaData", function() {
-        
+
         it("should return an empty object by default", function() {
           var inputBasePath = path.join(testFilePath, 'short_books');
           var result = uw.generate(inputBasePath, baseInfoJson, false, function(){}, function() {});
@@ -527,7 +527,7 @@ describe('uwGenerateUsfm', function() {
     });
 
     describe("Indexing Verse", function() {
-      
+
       it("should index the verse", function() {
         var verse1 = 'I, James, serve God and am bound to God through the Lord Jesus Christ. I am writing this letter to the twelve Jewish tribes who trust in Christ and who are scattered throughout the world. I greet you all.';
         var verse2 = 'My fellow believers, consider it something to greatly rejoice over when you experience various kinds of hardships.';
@@ -545,8 +545,8 @@ describe('uwGenerateUsfm', function() {
 
     describe("Bug Fixes", function() {
       /**
-       * If you look at John 3:16 on the web site, you will see it ends with "should not perish but" leaving off the rest. 
-       * I believe the problem is line breaks in the usfm not being rendered correctly. Like html, line breaks in verses 
+       * If you look at John 3:16 on the web site, you will see it ends with "should not perish but" leaving off the rest.
+       * I believe the problem is line breaks in the usfm not being rendered correctly. Like html, line breaks in verses
        * that are not part of a \q poetry section should be treated as spaces.
        *
        * @author Johnathan Pulos <johnathan@missionaldigerati.org>

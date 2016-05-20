@@ -62,7 +62,7 @@ var uwGrabAvailableTexts = function() {
    * @type {String}
    * @access public
    */
-  uwObject.destinationFolder = 'input';
+  uwObject.destinationFolder = '../../input';
   /**
    * The API url to grab the available Bible texts from.  It should return JSON.
    *
@@ -301,13 +301,12 @@ var uwGrabAvailableTexts = function() {
    * @param lang_code string
      */
   function getLanguageData(lang_code) {
-
     var found = uwObject.languageData.filter(function(lang) {
-      return lang['lc'] == lang_code;
+      return lang.lc == lang_code;
     });
 
     if (found.length == 1) {
-        return found[0]
+        return found[0];
     }
 
     // not found
@@ -365,6 +364,7 @@ var uwGrabAvailableTexts = function() {
       }
 
       var versions = languages[l].vers;
+
       for (var i = 0; i < versions.length; i++) {
         var bible = {};
         var version = versions[i];
@@ -378,10 +378,10 @@ var uwGrabAvailableTexts = function() {
           abbr:             version.slug.toUpperCase(),
           name:             version.name,
           nameEnglish:      '',
-          lang:             languageData['lc'],
-          langName:         languageData['ln'],
-          langNameEnglish:  languageData['ang'],
-          dir:              languageData['ld'],
+          lang:             languageData.lc,
+          langName:         languageData.ln,
+          langNameEnglish:  languageData.ang,
+          dir:              languageData.ld,
           generator:        'unfolding-word/uw-generate-usfm',
           checking_level:   checkingLevel
         };
