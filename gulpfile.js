@@ -65,6 +65,12 @@ var generateScript = path.join('./tools', 'generate.js');
  */
 var createIndexScript = path.join('./tools', 'create_texts_index.js');
 /**
+ * Are we watching for code changes?
+ *
+ * @type {Boolean}
+ */
+var watching = false;
+/**
  * An array of files to watch and run lint on
  *
  * @type {Array}
@@ -89,7 +95,9 @@ var testSources = ['./tests/**/*.js'];
  */
 function handleMochaError(err) {
   console.log(err.toString());
-  process.exit(1);
+  if (!watching) {
+    process.exit(1);
+  }
   this.emit('end');
 }
 function handleLintError(err) {
@@ -186,7 +194,8 @@ gulp.task('test', function() {
 /**
  * Setup the watch task
  */
-gulp.task('watch', ['lint', 'test'], function() {
+gulp.task('watch', function() {
+  watching = true;
   gulp.watch(sources, function() {
     gulp.run('lint', 'test');
   });
