@@ -7,11 +7,11 @@ var SearchWindow = function(id, parent, init_data) {
 
 						'<input type="text" class="search-text app-input i18n" data-i18n="[placeholder]windows.search.placeholder" />' +
 						'<div class="text-list app-list" style="">&nbsp;</div>' +
-											
+
 						'<div class="search-options-button header-icon" style=""></div>' +
-						
+
 						'<input type="button" value="Search" data-i18n="[value]windows.search.button" class="search-button header-button i18n" />' +
-						
+
 						//'<select class="search-list header-list" style="max-width: 100px; top: 22px; right: 5px; position: absolute;" ></select>' +
 					'</div>').appendTo(parent.node),
 		main = $('<div class="search-main"><div class="search-wrapper">' +
@@ -43,19 +43,21 @@ var SearchWindow = function(id, parent, init_data) {
 		resultsBlock = main.find('.search-results'),
 		input = header.find('.search-text'),
 		button = header.find('.search-button'),
-		
-		textui = header.find('.text-list'),
-		textChooser = new TextChooser(parent.node, textui, 'bible'),
-		
+
+		textlistui = header.find('.text-list'),
+		//textChooser = new TextChooser(parent.node, textlistui, 'bible'),
+		textChooser = sofia.globalTextChooser,
+		textChooserFocused = false,
+
 		searchOptionsButton = header.find('.search-options-button'),
-		
-		divisionChooser = $('<div class="search-division-chooser">' + 
-								'<div class="search-division-header">' + i18n.t('windows.search.options') + '</div>' + 
-								'<div class="search-division-main"></div>' + 
+
+		divisionChooser = $('<div class="search-division-chooser">' +
+								'<div class="search-division-header">' + i18n.t('windows.search.options') + '</div>' +
+								'<div class="search-division-main"></div>' +
 							'</div>').appendTo($('body')),
-		
+
 		selectedTextInfo = null,
-		
+
 		// used for redrawing divisions
 		previousTextInfo = null,
 
@@ -78,7 +80,7 @@ var SearchWindow = function(id, parent, init_data) {
 			}
 		}
 	});
-	
+
 	button.on('click', function() {
 
 		// record
@@ -91,54 +93,51 @@ var SearchWindow = function(id, parent, init_data) {
 	});
 
 	textChooser.on('change', function(e) {
-		setTextInfo(e.data, false);
-		
+
+		if (e.data.target != textlistui) {
+			return;
+		}
+
+		setTextInfo(e.data.textInfo, false);
+
 		// reset UI
-		
 		clearResults();
-		
 	});
-	
-	textui.on('click', function(e) {
-		if (textChooser.node().is(':visible')) {
-			textChooser.hide();
+
+	textlistui.on('click', function(e) {
+
+		if (textChooser.getTarget() == textlistui) {
+			textChooser.toggle();
 		} else {
+			textChooser.setTarget(parent.node, textlistui, 'bible');
+			textChooser.setTextInfo(selectedTextInfo);
 			textChooser.show();
-			
-			setTimeout(function() {
-				activeClickOffNodes = [textChooser.node()[0], textui[0]];
-				$(document).on('click', docClick);
-			}, 10);
-		}		
+			textChooserFocused = true;
+		}
 	});
-	
+
 	searchOptionsButton.on('click', function(e) {
-		
+
 		if (divisionChooser.is(':visible')) {
 			divisionChooser.hide();
-			
+
 		} else {
 			divisionChooser.show();
-			
+
 			var uiPos = searchOptionsButton.offset(),
 				top = uiPos.top + searchOptionsButton.outerHeight(true) + 10,
 				left = uiPos.left,
 				divWidth = divisionChooser.outerWidth(true),
 				winWidth = $(window).width();
-				
+
 			if (left + divWidth > winWidth) {
-				left = winWidth - divWidth - 10;				
-			}				
-						
+				left = winWidth - divWidth - 10;
+			}
+
 			divisionChooser.css({
 				top: top,
 				left: left
 			});
-
-			setTimeout(function() {
-				activeClickOffNodes = [divisionChooser[0], searchOptionsButton[0]];			
-				$(document).on('click', docClick);				
-			},10);
 
 		}
 
@@ -146,155 +145,141 @@ var SearchWindow = function(id, parent, init_data) {
 	});
 
 	function drawDivisions() {
-		
+
 		// TODO: store the selected ones from this book to reselect on this one (unless it's a shorter one)
-		
+
 		var otListHtml = '',
 			ntListHtml = '';
-			
+
 		for (var i=0, il=selectedTextInfo.divisions.length; i<il; i++) {
-			
+
 			var dbsBookCode = selectedTextInfo.divisions[i],
 				bookName = selectedTextInfo.divisionNames[i],
 				checkedStatus = ' checked',
 				html = '<label class="division-name"><input type="checkbox" value="' + dbsBookCode + '"' + checkedStatus + ' />' + bookName + '</label>';
-				
+
 			if (bible.EXTRA_MATTER.indexOf(dbsBookCode) > -1 ) {
 				continue;
 			}
-			
-			if (bible.NT_BOOKS.indexOf(dbsBookCode) > -1 ) {				
+
+			if (bible.NT_BOOKS.indexOf(dbsBookCode) > -1 ) {
 				ntListHtml += html;
 			} else {
 				otListHtml += html;
-			}			
+			}
 		}
-		
-		var completeHtml = 
+
+		var completeHtml =
 					'<div class="division-list division-list-ot">' +
-						'<label class="division-header">' + 
-							'<input type="checkbox" value="list-ot" checked />' + i18n.t('windows.bible.ot') + '</label>' + 
-						'</label>' + 
-						'<div class="division-list-items">' + 
-							otListHtml + 
+						'<label class="division-header">' +
+							'<input type="checkbox" value="list-ot" checked />' + i18n.t('windows.bible.ot') + '</label>' +
+						'</label>' +
+						'<div class="division-list-items">' +
+							otListHtml +
 						'</div>' +
-					'</div>' + 
+					'</div>' +
 					'<div class="division-list division-list-nt">' +
-						'<label class="division-header">' + 
-							'<input type="checkbox" value="list-nt" checked />' + i18n.t('windows.bible.nt') + '</label>' + 
-						'</label>' + 
-						'<div class="division-list-items">' + 
-							ntListHtml + 
+						'<label class="division-header">' +
+							'<input type="checkbox" value="list-nt" checked />' + i18n.t('windows.bible.nt') + '</label>' +
+						'</label>' +
+						'<div class="division-list-items">' +
+							ntListHtml +
 						'</div>' +
-					'</div>';		
-		
+					'</div>';
+
 		divisionChooser.attr('dir', selectedTextInfo.dir);
-		divisionChooser.find('.search-division-main').html(completeHtml);		
-		
+		divisionChooser.find('.search-division-main').html(completeHtml);
+
 		// TODO: check for items then hide
 		var hasOtBooks = divisionChooser.find('.division-list-ot .division-list-items input').length > 0,
 			hasNtBooks = divisionChooser.find('.division-list-nt .division-list-items input').length > 0;
-		
+
 		if (!hasOtBooks) {
 			divisionChooser.find('.division-list-ot').hide();
 		}
 		if (!hasNtBooks) {
 			divisionChooser.find('.division-list-nt').hide();
-		}		
+		}
 	}
-	
+
 	function setDivisions(divisions) {
-	
+
 		console.log('init divisions', divisions);
 		if (typeof divisions == 'string') {
 			divisions = divisions.split(',');
 		}
-		
-		
+
+
 		if (divisions && divisions.length > 0) {
 			divisionChooser.find('.division-list input').prop('checked', false);
-			
-			for (var i=0, il = divisions.length; i<il; i++) {				
+
+			for (var i=0, il = divisions.length; i<il; i++) {
 				divisionChooser
 					.find('.division-list input[value="' + divisions[i] + '"]')
 					.prop('checked',true);
-			}		
+			}
 		}
-		
+
 		// check headers
 		checkDivisionHeader( divisionChooser.find('.division-list-ot') );
-		checkDivisionHeader( divisionChooser.find('.division-list-nt') );		
-		
+		checkDivisionHeader( divisionChooser.find('.division-list-nt') );
+
 	}
-	
+
 	function checkDivisionHeader(divisionList) {
 		var items = divisionList.find('.division-list-items input'),
 			allChecked = true;
-			
+
 		items.each(function(i,el) {
-		
+
 			if (!$(el).is(':checked')) {
 				allChecked = false;
-				return false;	
-			}			
-		});		
-		
-		divisionList.find('.division-header input').prop('checked', allChecked);		
+				return false;
+			}
+		});
+
+		divisionList.find('.division-header input').prop('checked', allChecked);
 	}
 
 	divisionChooser.on('click', '.division-header input', function() {
 		var checkbox = $(this),
 			setChildrenTo = checkbox.is(':checked');
-		
-		checkbox.closest('.division-list').find('.division-list-items input').prop('checked', setChildrenTo);		
+
+		checkbox.closest('.division-list').find('.division-list-items input').prop('checked', setChildrenTo);
 	});
-	
+
 	divisionChooser.on('click', '.division-list-items input', function() {
 		var checkbox = $(this);
-		
-		checkDivisionHeader( checkbox.closest('.division-list') );		
-	});	
 
-	var activeClickOffNodes = [];
-
-	function docClick(e) {
-		////console.log('doc click');
-
-		var target = $(e.target),
-			clickedOnActiveNode = false;
-
-		while (target != null && target.length > 0) {
-
-			//if (target[0] == activeClickOffNode[0] || target[0] == textui[0] ) {
-			if (activeClickOffNodes.indexOf(target[0]) > -1) {
-				clickedOnActiveNode = true;
-				break;
-			}
-
-			target = target.parent();
-		}
-
-		//return;
-		if (!clickedOnActiveNode) {
-			e.preventDefault();
-
-			$(activeClickOffNodes[0]).hide();
-			//textChooser.hide();
-			
-			$(document).off('click', docClick);
-
-			return false;
-		}
-	}
+		checkDivisionHeader( checkbox.closest('.division-list') );
+	});
 
 	resultsBlock.on('click', 'tr', function(e) {
 
 		var tr = $(this),
 			fragmentid = tr.attr('data-fragmentid');
 
-		//console.log('search click', fragmentid);
 
-		ext.trigger('globalmessage', {
+
+		// is there a bible window?
+		var
+			bibleWindows = sofia.app.windowManager.getWindows().filter(function(w) { return w.className == 'BibleWindow'});
+
+console.log('search click', fragmentid, bibleWindows);
+
+		if (bibleWindows.length == 0) {
+
+			// open new window
+			sofia.app.windowManager.add('BibleWindow', {
+				textid: sofia.config.newBibleWindowVersion,
+				fragmentid: fragmentid,
+				sectionid: fragmentid.split('_')[0],
+			});
+
+		} else {
+
+
+			ext.trigger('globalmessage', {
 								type: 'globalmessage',
 								target: this,
 								data: {
@@ -307,6 +292,7 @@ var SearchWindow = function(id, parent, init_data) {
 									}
 								}
 							});
+		}
 
 	});
 
@@ -435,9 +421,34 @@ var SearchWindow = function(id, parent, init_data) {
 				renderLemmaInfo();
 				renderUsage();
 			}
-
+			
+			// TEMP 
+			var strongsUsage = {}; 
+			resultsBlock.find('.highlight').each(function() { 
+				var h = $(this), l = h.closest('l'); 
+				if (l.length > 0) { 
+					var strongs = l.attr('s').split(' ')[0]; 
+					if (typeof strongsUsage[strongs] != 'undefined') {
+						strongsUsage[strongs].count++;
+					} else {
+						strongsUsage[strongs] = { count: 1 };
+					}
+				} 
+			});
+			var strongsHtml = '';
+			var strongsKeys = Object.keys(strongsUsage);
+			for (var i=0, il=strongsKeys.length; i<il; i++) {
+				strongsHtml += '<tr><td>' + strongsKeys[i] + '</td><td>' + strongsUsage[strongsKeys[i]].count + '</td></tr>';
+			}
+			topUsage
+				.append( $('<table>' + strongsHtml + '</table>') )
+				.show();
+			
+			
 
 			createHighlights();
+			
+			//createLemmaUsage();
 		} else {
 
 			resultsBlock.html( "No results" );
@@ -646,41 +657,41 @@ var SearchWindow = function(id, parent, init_data) {
 		var text = input.val().trim(),
 			//textid = list.val(),
 			textid = textInfo.id,
-			
+
 			divisions = getSelectedDivisions(),
-			
+
 			allDivisions = divisionChooser.find('.division-list-items input');
-		
+
 		parent.tab.find('span').html(text);
 
 		// don't send the list if it's all books
 		if (allDivisions.length == divisions.length) {
 			divisions = [];
 		}
-				
-		clearResults();		
-		
+
+		clearResults();
+
 		topBlockTitle.html('[' + text + '] in [' + textInfo.name + ']');
-		
-		removeHighlights();	
+
+		removeHighlights();
 
 		resultsBlock.addClass('loading-indicator');
 
 		enable();
-		
-		TextLoader.startSearch(textid, divisions, text, searchLoadHandler, searchIndexCompleteHandler, searchCompleteHandler);		
+
+		TextLoader.startSearch(textid, divisions, text, searchLoadHandler, searchIndexCompleteHandler, searchCompleteHandler);
 	}
-	
+
 	function getSelectedDivisions() {
-			
+
 		var divisions = [],
 			selectedBooks = divisionChooser.find('.division-list-items input:checked');
-			
+
 		selectedBooks.each(function() {
-			divisions.push( $(this).val() );			
-		});	
-		
-		return divisions;	
+			divisions.push( $(this).val() );
+		});
+
+		return divisions;
 	}
 
 	function disable() {
@@ -701,21 +712,20 @@ var SearchWindow = function(id, parent, init_data) {
 		main.outerWidth(width)
 			.outerHeight(height - header.outerHeight() - footer.outerHeight());
 	}
-	
+
 	function setTextInfo(textInfo, sendToChooser) {
-	
+
 		// keep old one
 		previousTextInfo = selectedTextInfo;
-	
+
 		// store new one
 		selectedTextInfo = textInfo;
-	
-		textui.html(textInfo.abbr);	
-		
+
+		textlistui.html(textInfo.abbr);
+
 		// draw books
 		drawDivisions();
-		
-		
+
 		if (sendToChooser) {
 			textChooser.setTextInfo(textInfo);
 		}
@@ -728,14 +738,14 @@ var SearchWindow = function(id, parent, init_data) {
 			TextLoader.getText(init_data.textid, function(data) {
 
 				setTextInfo(data, true);
-				
+
 				if (init_data.divisions) {
 					setDivisions(init_data.divisions);
 				}
-					
+
 				if (init_data.searchtext && init_data.searchtext != '') {
 					input.val(init_data.searchtext);
-					
+
 					doSearch();
 				}
 
@@ -744,7 +754,7 @@ var SearchWindow = function(id, parent, init_data) {
 			console.log('SEARCH: no init textid');
 
 			for (var index in TextLoader.textData) {
-			
+
 				setTextInfo(TextLoader.textData[index], true);
 				break;
 			}
@@ -761,9 +771,9 @@ var SearchWindow = function(id, parent, init_data) {
 			} else {
 				// if it's just <span class="highlight">, replace it with text
 				var textFragment = document.createTextNode(el.textContent);
-				if (el && el.parent && el.parent.node) { 
-					el.parent.node.insertBefore(textFragment, el);
-					el.parent.node.removeChild(el);
+				if (el && el.parentNode) {
+					el.parentNode.insertBefore(textFragment, el);
+					el.parentNode.removeChild(el);
 				}
 			}
 
@@ -814,10 +824,28 @@ var SearchWindow = function(id, parent, init_data) {
 		}
 
 	}
+	
+	function createLemmaUsage() {
+		var strongsUsage = {}; 
+		
+		$('.highlight').each(function() { 
+		   var h = $(this), l = h.closest('l'); 
+		   if (l.length > 0) { 
+		      var strongs = l.attr('s').split(' ')[0]; 
+		      if (typeof words[strongs] != 'undefined') {
+		         strongsUsage[strongs]++;
+		      } else {
+		         strongsUsage[strongs] = 1;
+		      }
+		   } 
+		});
+		console.log(words);
+		
+	}
 
 	function close() {
 		removeHighlights();
-		
+
 		divisionChooser.remove();
 		textChooser.close();
 
@@ -828,9 +856,9 @@ var SearchWindow = function(id, parent, init_data) {
 	var ext = {
 		size: size,
 		getData: function() {
-		
+
 			var divisions = divisionChooser.find('.division-list-ot .division-header input').is(':checked') &&
-							divisionChooser.find('.division-list-nt .division-header input').is(':checked') ? 
+							divisionChooser.find('.division-list-nt .division-header input').is(':checked') ?
 								[] : getSelectedDivisions();
 
 			return {

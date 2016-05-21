@@ -1,11 +1,8 @@
-tools/textgenerator/ftp-config.js
-tools/textgenerator/input/
-tools/textgenerator/node_modules/*
-!tools/textgenerator/node_modules/*.js
-!tools/textgenerator/node_modules/unfolding-word
+node_modules/
+input/uw_*/
 tools/utilities/
 tools/_old/
-content/texts/
+content/texts/*.*
 build/
 app/content/texts/*
 !app/content/texts/README.md
