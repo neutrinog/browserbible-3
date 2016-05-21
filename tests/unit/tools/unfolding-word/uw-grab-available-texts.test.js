@@ -35,7 +35,7 @@ describe('uwGrabAvailableTexts', function() {
     requestStub = sinon.stub();
     mkdirpStub = sinon.stub();
     fileSystemStub = {
-      writeFile: sinon.stub()
+      writeFileSync: sinon.stub()
     };
     exports.Download = function(options) {};
     downloadStub = sinon.stub(exports, 'Download').returns({get: sinon.stub(), dest: sinon.stub(), run: sinon.stub()});
@@ -113,13 +113,13 @@ describe('uwGrabAvailableTexts', function() {
 
   describe("Function downloadBibles()", function() {
     var inputPath;
+    var bibles;
 
     beforeEach(function() {
       inputPath = path.join(testFilePath, 'input');
-      requestStub.yields(null, {statusCode: 200}, JSON.stringify(uwFeedData));
-      uw.getBibles(function(bibles) {
-        uw.downloadBibles(bibles);
-      });
+      bibles = [{about: '<dt>Information</dt><dd>Unlocked Dynamic Bible</dd><dt>Contributors</dt><dd>Wycliffe Associates</dd><dt>Checking Entity</dt><dd>Wycliffe Associates</dd><dt>Checking Level</dt><dd>3</dd><dt>Published</dt><dd>July 23, 2015</dd><dt>Version</dt><dd>2.0.0-beta9</dd><dt>Comments</dt><dd>Original source text</dd>',version_info:{id: 'uw_en_udb',abbr: 'UDB',name: 'Unlocked Dynamic Bible',nameEnglish: '',lang: 'en',langName: 'English',langNameEnglish: 'English',dir: 'ltr',generator: '../unfolding-word/uw-generate-usfm',checking_level: '3' },files: [ 'https://api.unfoldingword.org/udb/txt/1/udb-en/01-GEN.usfm' ]},{about: '<dt>Information</dt><dd>Unlocked Literal Bible</dd><dt>Contributors</dt><dd>Wycliffe Associates</dd><dt>Checking Entity</dt><dd>Wycliffe Associates</dd><dt>Checking Level</dt><dd>3</dd><dt>Published</dt><dd>July 23, 2015</dd><dt>Version</dt><dd>2.0.0-beta9</dd><dt>Comments</dt><dd>Original source text</dd>',version_info:{id: 'uw_en_ulb',abbr: 'ULB',name: 'Unlocked Literal Bible',nameEnglish: '',lang: 'en',langName: 'English',langNameEnglish: 'English',dir: 'ltr',generator: '../unfolding-word/uw-generate-usfm',checking_level: '3'},files: [ 'https://api.unfoldingword.org/ulb/txt/1/ulb-en/01-EXD.usfm' ]}];
+      mkdirpStub.callsArgWith(1, null, inputPath);
+      uw.downloadBibles(bibles);
     });
 
     it("should create the correct directory for the files", function() {
@@ -132,17 +132,17 @@ describe('uwGrabAvailableTexts', function() {
     it("should create the info.json files", function() {
       var firstInfoJson = JSON.stringify({id:'uw_en_udb',abbr:'UDB',name:'Unlocked Dynamic Bible',nameEnglish:'',lang:'en',langName:'English',langNameEnglish:'English',dir:'ltr',generator:'../unfolding-word/uw-generate-usfm',checking_level:'3'});
       var secondInfoJson = JSON.stringify({id:'uw_en_ulb',abbr:'ULB',name:'Unlocked Literal Bible',nameEnglish:'',lang:'en',langName:'English',langNameEnglish:'English',dir:'ltr',generator:'../unfolding-word/uw-generate-usfm',checking_level:'3'});
-      fileSystemStub.writeFile.called.should.be.equal(true);
-      fileSystemStub.writeFile.firstCall.calledWith(path.join(inputPath, 'uw_en_udb', 'info.json'), firstInfoJson).should.be.equal(true);
-      fileSystemStub.writeFile.thirdCall.calledWith(path.join(inputPath, 'uw_en_ulb', 'info.json'), secondInfoJson).should.be.equal(true);
+      fileSystemStub.writeFileSync.called.should.be.equal(true);
+      fileSystemStub.writeFileSync.firstCall.calledWith(path.join(inputPath, 'info.json'), firstInfoJson).should.be.equal(true);
+      fileSystemStub.writeFileSync.thirdCall.calledWith(path.join(inputPath, 'info.json'), secondInfoJson).should.be.equal(true);
     });
 
     it("should create the about.html files", function() {
       var fileData1 = fs.readFileSync(path.join(testFilePath, 'files', 'about', 'udb-about.html'),'utf8');
       var fileData2 = fs.readFileSync(path.join(testFilePath, 'files', 'about', 'ulb-about.html'),'utf8');
-      fileSystemStub.writeFile.called.should.be.equal(true);
-      fileSystemStub.writeFile.secondCall.calledWith(path.join(inputPath, 'uw_en_udb', 'about.html'), fileData1).should.be.equal(true);
-      fileSystemStub.writeFile.lastCall.calledWith(path.join(inputPath, 'uw_en_ulb', 'about.html'), fileData2).should.be.equal(true);
+      fileSystemStub.writeFileSync.called.should.be.equal(true);
+      fileSystemStub.writeFileSync.secondCall.calledWith(path.join(inputPath, 'about.html'), fileData1).should.be.equal(true);
+      fileSystemStub.writeFileSync.lastCall.calledWith(path.join(inputPath, 'about.html'), fileData2).should.be.equal(true);
     });
 
     it("should download all the files for the Bibles", function() {
@@ -152,8 +152,8 @@ describe('uwGrabAvailableTexts', function() {
       download.get.firstCall.calledWith('https://api.unfoldingword.org/udb/txt/1/udb-en/01-GEN.usfm').should.be.equal(true);
       download.get.secondCall.calledWith('https://api.unfoldingword.org/ulb/txt/1/ulb-en/01-EXD.usfm').should.be.equal(true);
       download.dest.called.should.be.equal(true);
-      download.dest.firstCall.calledWith(path.join(inputPath, 'uw_en_udb')).should.be.equal(true);
-      download.dest.secondCall.calledWith(path.join(inputPath, 'uw_en_ulb')).should.be.equal(true);
+      download.dest.firstCall.calledWith(inputPath).should.be.equal(true);
+      download.dest.secondCall.calledWith(inputPath).should.be.equal(true);
       download.run.called.should.be.equal(true);
     });
 

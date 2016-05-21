@@ -100,8 +100,8 @@ var uwGrabAvailableTexts = function() {
    */
   uwObject.downloadLanguageData = function(_callback) {
 
-    display('Getting the list of languages from ' + uwObject['languagesUrl'] + '.');
-    request(uwObject['languagesUrl'], function(error, response, body) {
+    display('Getting the list of languages from ' + uwObject.languagesUrl + '.');
+    request(uwObject.languagesUrl, function(error, response, body) {
       if (error) {
         display('Error - downloadLanguageData:', true);
         console.log(error);
