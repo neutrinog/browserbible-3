@@ -3,7 +3,7 @@ stat:
 
 build:
 	npm install .
-	gulp uw:build
+	./node_modules/.bin/gulp uw:build
 
 commit:
 	git diff >/tmp/git-diff.out 2>&1
