@@ -6,9 +6,9 @@ sofia.config = $.extend(sofia.config, {
   enableOnlineSources: true,
   settingsPrefix: 'UW2133903',
   windows: [
-    {type: 'bible', data: {textid: 'uw_en_ulb', fragmentid: 'GN1_1'}}
+    {type: 'bible', data: {textid: 'uw_en_ulb-en', fragmentid: 'GN1_1'}}
   ],
-  newBibleWindowVersion: 'uw_en_ulb',
+  newBibleWindowVersion: 'uw_en_ulb-en',
   newWindowFragmentid: 'GN1_1',
   logoLinkTo: 'https://unfoldingword.org/'
 
