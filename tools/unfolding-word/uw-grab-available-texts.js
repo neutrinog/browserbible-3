@@ -258,7 +258,7 @@ var uwGrabAvailableTexts = function() {
   function display(msg, isError) {
     var start = (isError) ? 'X Error > ' : '> ';
     if (uwObject.silenceNotification === false) {
-      console.log(start + msg);
+      console.log((start + msg).toString('utf8'));
     }
   }
   /**
